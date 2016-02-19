@@ -1,0 +1,33 @@
+{
+  "name": "websocketpong",
+  "version": "1.0.0",
+  "description": "Showcase of a multi player websocket enabled pong",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+  "express": "^4.4.5",
+  "ws": "0.4.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thedamian/websocketPong.git"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "websocket",
+    "example",
+    "game",
+    "pong",
+    "javascript"
+  ],
+  "author": "Damian Montero",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/thedamian/websocketPong/issues"
+  },
+  "homepage": "https://github.com/thedamian/websocketPong#readme"
+}

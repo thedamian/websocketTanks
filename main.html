@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pong!!!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <link href="images/icon-114x114.png" sizes="114x114" rel="apple-touch-icon">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+      canvas {margin: 0 auto 0 auto;width:640px;display:none;}
+      #gc {display:none}
+      button { width:200px; height:200px; color:white;}
+    </style>
+  </head>
+  
+  <body>
+    <div id="waiting">
+      
+      <h1>Go to x.co/pong on your phone</h1>
+      
+      then choose
+    <div style="width:100%;text-align:center;">
+    <button style="background-color:red; " id="red">Red</button>
+ <BR>OR<BR>
+    <button style="background-color:blue;" id="blue">Blue</button>
+     </div>
+      
+      </div>
+    <canvas id="gc" width="640" height="480" ></canvas>
+    <script>
+    var
+    p1y=p2y=40;
+    pt=10;
+    ph=100;
+    bx=by=50;
+    bd=6;
+    xv=yv=4;
+    score1=score2=0;
+    ais=2;
+    
+      window.onload=function() {
+        c=document.getElementById('gc');
+        cc=c.getContext('2d');
+        //setInterval(update,1000/30);
+        //c.addEventListener('mousemove',function(e) {
+        //  p1y = e.clientY-ph/2;
+        //});
+      }
+      function reset() {
+        bx=c.width/2;
+        by=c.height/2;
+        xv=-xv;
+        yv=4;
+      }
+      
+      function update() {
+
+        bx+=xv;
+        by+=yv;
+        
+        if(by<0 && yv<0) {
+          yv=-yv;
+        }
+        
+        if(by>c.height && yv>0) {
+          yv=-yv;
+        }
+        
+        if(bx<0) {
+          if (by>p1y && by<p1y+ph) {
+            xv=-xv;
+            dy=by-(p1y+ph/2);
+            yv=dy*0.3;
+            
+          } else {
+            score2++;
+            reset();
+          }
+        }
+        
+         if(bx>c.width) {
+          if (by>p2y && by<p2y+ph) {
+            xv=-xv;
+            dy=by-(p2y+ph/2);
+            yv=dy*0.3;
+            
+          } else {
+            score1++;
+            reset();
+          }
+        }
+        
+
+        
+        // ai
+       //if(p2y+ph/2<by){
+      //   p2y+= ais;
+      // }  else {
+    //     p2y-= ais;
+    //   }      
+        
+        
+            cc.fillStyle='black';
+            cc.fillRect(0,0,c.width,c.height);
+            cc.fillStyle='white';
+            cc.fillRect(0,p1y,pt,ph);
+            cc.fillRect(c.width-pt,p2y,pt,ph);
+            cc.fillRect(bx-bd/2,by-bd/2,bd,bd);
+            cc.fillText(score1,100,100);
+            cc.fillText(score2,c.width-100,100);
+      }
+    </script>
+    
+    <div id="thisone"></div>
+    
+  </body>
+  
+  
+      <script>
+ 
+    
+    
+    
+    
+    
+      
+      var host = location.origin.replace(/^http/, 'ws');
+      var ws = new WebSocket(host);
+      ws.onmessage = function (event) {
+        var move = JSON.parse(event.data);
+        //console.log(move.color);
+        switch(move.cmd)
+        {
+          case "down": 
+                  if (move.color=="red")
+                    {
+                      console.log(" move.color"+ move.uuid);
+                       p1y = move.uuid-ph/2;
+                      //p1y +=15;
+                    } else {
+                      //p2y +=15;
+                       p2y =  move.uuid-ph/2;
+                       console.log(" move.color"+ move.uuid);
+                    }
+                    
+                  break;
+          case "up":
+                 //$("#"+move.uuid).html(move.cmd);
+                 if (move.color=="red")
+                    {
+                      p1y -=15;
+                    } else {
+                      p2y -=15;
+                    }
+                  break;
+                  
+          case "startGameEveryone":
+                  $("#waiting").hide();
+                  $("#gc").show();
+                  setInterval(update,1000/30);
+                  //$("#thisone").append($("<div>").attr("id",move.uuid).html(move.color));
+                  break;
+        }
+        
+        
+    };
+
+
+      
+    </script>
+    
+  </html>

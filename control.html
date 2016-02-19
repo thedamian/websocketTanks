@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Pong!!!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <link href="images/icon-114x114.png" sizes="114x114" rel="apple-touch-icon">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+        <style>
+      button { width:200px; height:200px; color:black;}
+    </style>
+  </head>
+  
+  <body>
+    
+   <button id="startGameEveryone" > Start game</button>
+   <button id="scott">scott</button>
+   <button id="johnpapa">John papa</button>
+   <button id="requestNotification">request Notification</button>
+   <button id="DoNotification">Do Notification</button>
+    
+  </body>
+  
+  
+      <script>
+      var move = {};
+      var synth = window.speechSynthesis;
+      var host = location.origin.replace(/^http/, 'ws');
+      var ws = new WebSocket(host);
+            ws.onmessage = function (event) {
+        move = JSON.parse(event.data);
+        console.dir(move);
+            };
+            
+        $('#startGameEveryone').on("click",function(){
+          move={cmd:"startGameEveryone",color:"","uuid":""};
+          $("#startGameEveryone").html("Stop Game");
+
+           ws.send(JSON.stringify(move));
+        });
+        
+        $("#scott").on("click",function(){
+          say("You are scott hanselman. the world famous presenter");
+        });
+
+        $("#johnpapa").on("click",function(){
+          say("You are john papa. And you are presenting at code camp");
+        });
+
+        
+        $('#requestNotification').on("click",function(){
+                  move={cmd:"requestNotification",color:"","uuid":""};
+                   ws.send(JSON.stringify(move));
+                });
+                
+        $('#DoNotification').on("click",function(){
+                  move={cmd:"DoNotification",color:"","uuid":""};
+                   ws.send(JSON.stringify(move));
+                });
+
+function say(thisText) {
+  
+
+  var utterThis = new SpeechSynthesisUtterance(thisText);
+  var voices = synth.getVoices();
+   for(i = 0; i < voices.length ; i++) {
+     if (voices[i].name == "Chrome OS US English")
+     {
+        utterThis.voice = voices[i];
+     }
+     
+   }
+  utterThis.pitch = "1";
+  utterThis.rate = "1";
+  synth.speak(utterThis);
+
+  utterThis.onpause = function(event) {
+    var char = event.utterance.text.charAt(event.charIndex);
+    console.log('Speech paused at character ' + event.charIndex + ' of "' +
+    event.utterance.text + '", which is "' + char + '".');
+  }
+
+}
+      
+    </script>
+    
+  </html>
