@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Tanks!!!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <link href="images/icon-114x114.png" sizes="114x114" rel="apple-touch-icon">
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+      canvas {margin: 0 auto 0 auto;width:640px;}
+      /*#gc {display:block} */
+    </style>
+  </head>
+  
+  <body>
+    <div id="waiting" style="display:none">
+      <BR><BR>
+      <BR><BR>
+      <center><h1>Go to <font color=red>x.co/tank</font> on your phone</h1></center>
+      
+     
+     </div>
+      
+      </div>
+    <canvas id="gc" width="500" height="500" ></canvas>
+    <script>
+
+      window.onload=function() {
+        c=document.getElementById('gc');
+        var context = c.getContext('2d');
+        var context2= c.getContext('2d');
+
+      	var tileSheet=new Image();
+	tileSheet.addEventListener('load', eventSheetLoaded , false);
+	tileSheet.src="http://orm-other.s3.amazonaws.com/html5canvasexamplecontent/chapter4/tanks_sheet.png";
+	
+	
+	var animationFrames=[1,2,3,4,5,6,7,8];
+	var frameIndex=0;
+	var rotation=90;
+	var x=50;
+	var y=50;
+	var dx=1;
+	var dy=0;
+	
+	function eventSheetLoaded() {
+		startUp();
+	}
+
+	function drawScreen() {
+        x=x+dx;
+		    y=y+dy;
+		 
+		//draw a background so we can wee the Canvas edges
+		context.fillStyle="#aaaaaa";
+		context.fillRect(0,0,500,500);
+		
+		context.save();
+		context.setTransform(1,0,0,1,0,0);
+
+		var i = 0;
+		//tanks.push({uuid:thisuuid,tankposX:rndPos,tankPosY:rndPos,speedX:0,speedY:0,rotation:90})
+		tanks.forEach(function(thisTank){
+		    
+		  thisTank.tankposX += thisTank.speedX;
+		  thisTank.tankPosY += thisTank.speedY;
+		  
+		  x=thisTank.tankposX;
+		  y=thisTank.tankPosY;
+      rotation = thisTank.rotation;
+      //console.log("X:"+x);
+      //console.log("y:"+y);
+      //console.log("rotation:"+rotation);
+		  
+  		var angleInRadians =rotation * Math.PI / 180;
+  		context.translate(x+16, y+16);
+  		context.rotate(angleInRadians);
+  		var sourceX=Math.floor(animationFrames[frameIndex] % 8) *32;
+  		var sourceY=Math.floor(animationFrames[frameIndex] / 8) *32;
+  		context.drawImage(tileSheet, sourceX, sourceY,32,32,-16,-16,32,32);
+  		context.rotate(-angleInRadians);
+  		context.translate(x-16,y-16);
+		  context.restore();
+		  
+		});
+
+         
+		frameIndex++;
+		if (frameIndex ==animationFrames.length) {
+          frameIndex=0;
+		}
+		 
+	}
+	
+	function startUp(){
+		gameLoop();
+	}
+   
+	function gameLoop() {
+		window.setTimeout(gameLoop, 100);
+		drawScreen();    
+	}
+        
+} // on load
+    </script>
+    
+
+  </body>
+  
+  
+      <script>
+ 
+    //testing start right away.
+     //setInterval(update,1000/30);
+    
+    
+    
+      var balls = [];
+      var tanks = [];
+      var host = location.origin.replace(/^http/, 'ws');
+      var ws = new WebSocket(host);
+      ws.onmessage = function (event) {
+        var move = JSON.parse(event.data);
+        var thisuuid = move.uuid;
+        thistank = tanks.filter(function( obj ) { return obj.uuid == thisuuid; })[0];
+        console.log(thistank);
+        switch(move.cmd)
+        {
+          
+          case "start":
+              var rndPos = Math.floor((Math.random() * 500) + 1);
+              console.log("new tank at: " + rndPos);
+              tanks.push({uuid:thisuuid,tankposX:rndPos,tankPosY:rndPos,speedX:0,speedY:0,rotation:90})
+          case "turnleft":
+            if (thistank != undefined)
+            {
+              if (thistank.rotation == 270)
+                  {thistank.rotation = 0;}
+              else 
+                  {thistank.rotation += 90;}
+                  switch(thistank.rotation)
+                  { 
+                    case 0: thistank.speedY=-1; thistank.speedX=0; break; // up
+                    case 90: thistank.speedY=0; thistank.speedX=1; break; // right
+                    case 180: thistank.speedY=1; thistank.speedX=0; break; // down
+                    case 270: thistank.speedY=0; thistank.speedX=-1; break; // left
+                  }
+            }
+                  break;
+          case "turnright":
+              if (thistank.rotation == 0)
+                  {thistank.rotation = 270;}
+              else 
+                  {thistank.rotation -= 90;}
+                  switch(thistank.rotation)
+                  { 
+                    case 0: thistank.speedY=-1; thistank.speedX=0; break; // up
+                    case 90: thistank.speedY=0; thistank.speedX=1; break; // right
+                    case 180: thistank.speedY=1; thistank.speedX=0; break; // down
+                    case 270: thistank.speedY=0; thistank.speedX=-1; break; // left
+                  }
+                  break;
+          case "forward":
+                  switch(thistank.rotation)
+                  { 
+                    case 0: thistank.speedY=-1; thistank.speedX=0; break; // up
+                    case 90: thistank.speedY=0; thistank.speedX=1; break; // right
+                    case 180: thistank.speedY=1; thistank.speedX=0; break; // down
+                    case 270: thistank.speedY=0; thistank.speedX=-1; break; // left
+                  }
+                  break;
+          case "fire":
+                  balls.push({posX:(thistank.tankposX),posY:(thistank.tankPosY),speedX:(thistank.speedX*3),speedY:(thistank.speedy*3)})
+                  break;
+          case "startGameEveryone":
+                  $("#waiting").hide();
+                  $("#gc").show();
+                  //setInterval(update,1000/30);
+                  //$("#thisone").append($("<div>").attr("id",move.uuid).html(move.color));
+                  break;
+        }
+        console.log(tanks);
+        
+        
+    };
+
+
+      
+    </script>
+    
+  </html>

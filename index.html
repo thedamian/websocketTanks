@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Pong!!!</title>
+    <title>Tanks!!!</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -16,16 +16,14 @@
     
     
     <style>
-      button { width:200px; height:200px; color:white;}
+      button { width:100px; height:100px; color:black;}
     </style>
   </head>
   
   <body>
     <div id="startscreen">
     <div style="width:100%;text-align:center;">
-    <button style="background-color:red; " id="red">Red</button>
- <BR>OR<BR>
-    <button style="background-color:blue;" id="blue">Blue</button>
+    <button style="background-color:red;color:white " id="red">Start Game</button>
      </div>
     </div>
     <div id="waiting" style="display:none;">
@@ -39,8 +37,11 @@
     <div id="playing" style="display:none;">
     
     
-    
-    <canvas id="gc" width="320" height="480" style="background-color:grey;" ></canvas>
+    <button id="turnleft">Turn Left</button> <button id="turnright">Right Turn</button> <BR/>
+    <button id="forward">Forward</button>    <button id="fire">Fire</button>
+
+    <!--
+    <canvas id="gc" width="320" height="480" style="background-color:grey;" ></canvas>-->
     
     
     
@@ -56,34 +57,13 @@
   
       <script>
       
-            window.onload=function() {
-        c=document.getElementById('gc');
-        cc=c.getContext('2d');
-        //setInterval(update,1000/10);
-        cc.fillStyle='gray';
-        cc.fillRect(0,0,c.width,c.height);
-        c.addEventListener('mousemove',function(e) {
-          //p1y = e.clientY-ph/2;
-          move={cmd:"down","color":color,"uuid": e.clientY};
-          ws.send(JSON.stringify(move));
-    
-        });
-
-        
-        c.addEventListener("touchmove", function (e) {
-            var touch = e.touches[0];
-            move={cmd:"down","color":color,"uuid":touch.clientY};
-            ws.send(JSON.stringify(move));
-            //c.dispatchEvent(mouseEvent);
-          }, false);
-        
-      }
-      
       var move={}
       var uuid = guid();
       var color="";
       var host = location.origin.replace(/^http/, 'ws')
       var ws = new WebSocket(host);
+      var snd = new Audio("die.mp3"); // buffers automatically when created
+      var firesnd
       ws.onmessage = function (event) {
         move = JSON.parse(event.data);
         console.dir(move);
@@ -98,6 +78,8 @@
             break;
           case "DoNotification":
             DoNotification();
+          case "die":
+            YellDie();
         }
         
       };
@@ -111,14 +93,27 @@
           $('#waiting').show();
           ws.send(JSON.stringify(move));
         });
-        $('#blue').on("click",function(){
-          move={cmd:"start",color:"blue","uuid":uuid};
-          color="blue";
-          $('#colorchoice').html("BLUE");
-          $('#startscreen').hide();
-          $('#waiting').show();
-           ws.send(JSON.stringify(move));
-        });
+
+            $("#turnleft").on("click",function(){
+          move={cmd:"turnleft",color:color,"uuid":uuid};
+          ws.send(JSON.stringify(move));
+            });
+            
+          $("#forward").on("click",function(){
+                move={cmd:"forward",color:color,"uuid":uuid};
+                ws.send(JSON.stringify(move));
+                  });
+          $("#turnright").on("click",function(){
+                move={cmd:"turnright",color:color,"uuid":uuid};
+                ws.send(JSON.stringify(move));
+                  });
+          $("#fire").on("click",function(){
+                move={cmd:"fire",color:color,"uuid":uuid};
+                ws.send(JSON.stringify(move));
+                firesnd.play();
+                  });
+        
+        
         
         
         //move
@@ -143,7 +138,9 @@
       
       
       
-      
+    function YellDie() {
+      snd.play();
+    }
 
 
     function DoNotification() {
@@ -174,5 +171,4 @@
       
       
     </script>
-    
-  </html>
+</html>
